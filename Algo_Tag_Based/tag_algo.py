@@ -1,6 +1,6 @@
 import face_recognition
 import glob
-from PIL import Image
+from PIL import Image, ImageDraw
 
 face_landmarks_set = []
 
@@ -11,11 +11,13 @@ def import_facial_landmarks():
         try:
             temp_image = face_recognition.load_image_file(image_name)
             temp_face_landmarks = face_recognition.face_landmarks(temp_image)[0]
-            face_landmarks_set.append(temp_face_landmarks)
+            print(temp_face_landmarks)
+            face_landmarks_set.append({
+                "image_loc": image_name, "landmarks": temp_face_landmarks})
         except IndexError:
             print("I wasn't able to locate any faces in " + image_name + ". Check the image files. Aborting...")
     print("Headshot imported!")
-    print(face_landmarks_set)
+    return face_landmarks_set
 
 def high_gender(image):
     return 0
@@ -41,10 +43,19 @@ def low_facial_landmarks(possible_list, image):
 
     return 0
 
+def save_drawn_pic(landmarks):
+    for landmark in landmarks:
+        img = Image.open(landmark["image_loc"])
+        draw = ImageDraw.Draw(img)
+        for key in landmark["landmarks"].keys():
+            draw.point(landmark["landmarks"][key])
+        img.save("test_set/" + landmark["image_loc"])
+
 def main():
 # reads image
     #face_recognition.face_landmarks(image)
-    import_facial_landmarks()
+    landmarks = import_facial_landmarks()
+    #save_drawn_pic(landmarks)
     #high_gender()
     
 main()
